@@ -9,26 +9,50 @@
     {% block head %}{% endblock %}
 </head>
 <body class="page-shell page-{{ page_key|default:'default' }}">
-    <div class="ambient ambient-top"></div>
-    <div class="ambient ambient-bottom"></div>
-    <header class="site-header">
-        <a class="brand" href="{% url 'home' %}">
-            <span class="brand-mark">VN</span>
-            <span class="brand-copy">
-                <strong>Vianue</strong>
-                <small>Venue operations console</small>
-            </span>
-        </a>
-        <nav class="site-nav">
-            <a href="{% url 'register-page' %}" {% if page_key == 'register' %}aria-current="page"{% endif %}>Register</a>
-            <a href="{% url 'login-page' %}" {% if page_key == 'login' %}aria-current="page"{% endif %}>Login</a>
-            <a href="{% url 'dashboard-redirect' %}">My Dashboard</a>
-            <a href="{% url 'owner-dashboard-page' %}" {% if page_key == 'owner-dashboard' %}aria-current="page"{% endif %}>Owner</a>
-            <a href="{% url 'vendor-dashboard-page' %}" {% if page_key == 'vendor-dashboard' %}aria-current="page"{% endif %}>Vendor</a>
-            <a href="{% url 'admin-dashboard-page' %}" {% if page_key == 'admin-dashboard' %}aria-current="page"{% endif %}>Admin</a>
-            <a href="{% url 'swagger-ui' %}">Swagger</a>
-        </nav>
-    </header>
+    {% block site_header %}
+        {% if page_key == 'home' %}
+            <header class="site-header site-header-home">
+                <div class="landing-container site-header-home-inner">
+                    <a class="brand brand-home" href="{% url 'home' %}">
+                        <span class="brand-mark">V</span>
+                        <span class="brand-copy">
+                            <strong>Vianue</strong>
+                            <small>Venue and event service booking</small>
+                        </span>
+                    </a>
+                    <nav class="site-nav site-nav-home" aria-label="Primary">
+                        <a href="{% url 'explore-page' %}?kind=venues">Venues</a>
+                        <a href="{% url 'explore-page' %}?kind=services">Services</a>
+                        <a href="#inspiration">Inspiration</a>
+                        <a href="#contact">Contact</a>
+                    </nav>
+                    <div class="site-actions-home">
+                        <a class="landing-button landing-button-secondary" href="{% url 'login-page' %}">Sign in</a>
+                        <a class="landing-button landing-button-primary" href="{% url 'register-page' %}">List your space</a>
+                    </div>
+                </div>
+            </header>
+        {% elif page_key != 'explore' %}
+            <div class="ambient ambient-top"></div>
+            <div class="ambient ambient-bottom"></div>
+            <header class="site-header site-header-app">
+                <a class="brand" href="{% url 'home' %}">
+                    <span class="brand-mark">VN</span>
+                    <span class="brand-copy">
+                        <strong>Vianue</strong>
+                        <small>Platform workspace</small>
+                    </span>
+                </a>
+                <nav class="site-nav site-nav-app" aria-label="Workspace">
+                    <a href="{% url 'home' %}" {% if page_key == 'home' %}aria-current="page"{% endif %}>Home</a>
+                    <a href="{% url 'register-page' %}" {% if page_key == 'register' %}aria-current="page"{% endif %}>Register</a>
+                    <a href="{% url 'login-page' %}" {% if page_key == 'login' %}aria-current="page"{% endif %}>Login</a>
+                    <a href="{% url 'dashboard-redirect' %}">My Dashboard</a>
+                    <a href="{% url 'swagger-ui' %}">API Docs</a>
+                </nav>
+            </header>
+        {% endif %}
+    {% endblock %}
     <main class="page-main">
         {% block content %}{% endblock %}
     </main>

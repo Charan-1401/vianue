@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
+{% block site_header %}
+<header class="explore-nav-wrap">
+    <div class="explore-container">
+        <nav class="explore-nav">
+            <a class="brand explore-brand" href="{% url 'home' %}">
+                <span class="brand-mark">V</span>
+                <span class="brand-copy">
+                    <strong>Vianue</strong>
+                    <small>Explore by location</small>
+                </span>
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'explore-page' %}?kind=venues" {% if kind == 'venues' %}aria-current="page"{% endif %}>Venues</a>
+                <a href="{% url 'explore-page' %}?kind=services" {% if kind == 'services' %}aria-current="page"{% endif %}>Services</a>
+                <a href="{% url 'dashboard-redirect' %}">Dashboard</a>
+            </div>
+        </nav>
+    </div>
+</header>
+{% endblock %}
+
+{% block content %}
+<section class="explore-page">
+    <div class="explore-container">
+        <div class="location-header">
+            <div class="location-title">
+                <i class="fa-solid fa-map-pin" aria-hidden="true"></i>
+                <span>
+                    {{ city }}
+                    {% if area %}
+                        <span class="location-sub">| {{ area }}</span>
+                    {% endif %}
+                </span>
+                <a href="#location-tools" class="change-loc"><i class="fa-solid fa-pen"></i> change location</a>
+            </div>
+            <div class="filter-tabs" aria-label="Explore filters">
+                {% for tab in filter_tabs %}
+                    <a class="filter-btn{% if tab.active %} active{% endif %}" href="{{ tab.href }}">
+                        <i class="fa-solid {{ tab.icon }}" aria-hidden="true"></i>
+                        <span>{{ tab.label }}</span>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <section class="location-tools" id="location-tools">
+            <form class="location-form" action="{% url 'explore-page' %}" method="get">
+                <label>
+                    <span>City</span>
+                    <input type="text" name="city" value="{{ city }}" placeholder="Enter city">
+                </label>
+                <label>
+                    <span>Locality</span>
+                    <input type="text" name="area" value="{{ area }}" placeholder="Enter neighborhood">
+                </label>
+                <label>
+                    <span>Search</span>
+                    <input type="text" name="q" value="{{ search }}" placeholder="Venue, service, or category">
+                </label>
+                {% if category %}
+                    <input type="hidden" name="category" value="{{ category }}">
+                {% endif %}
+                {% if kind != 'all' %}
+                    <input type="hidden" name="kind" value="{{ kind }}">
+                {% endif %}
+                {% if availability %}
+                    <input type="hidden" name="availability" value="{{ availability }}">
+                {% endif %}
+                <input type="hidden" name="sort" value="{{ sort }}">
+                <button class="explore-submit" type="submit">Update results</button>
+            </form>
+
+            <div class="location-presets">
+                {% for preset in location_presets %}
+                    <a href="{% url 'explore-page' %}?city={{ preset.city|urlencode }}&area={{ preset.area|urlencode }}">{{ preset.city }} | {{ preset.area }}</a>
+                {% endfor %}
+            </div>
+        </section>
+
+        <div class="explore-grid">
+            <div class="results-col">
+                <div class="results-header">
+                    <div>
+                        <span class="results-count">
+                            <i class="fa-solid fa-list" aria-hidden="true"></i>
+                            {{ results_count }} listings near {{ results_label }}
+                        </span>
+                        {% if location_fallback %}
+                            <p class="results-note">No direct locality matches yet. Showing approved listings from the broader catalog.</p>
+                        {% endif %}
+                    </div>
+
+                    <form class="sort-form" action="{{ explore_base_url }}" method="get">
+                        <input type="hidden" name="city" value="{{ city }}">
+                        <input type="hidden" name="area" value="{{ area }}">
+                        {% if search %}
+                            <input type="hidden" name="q" value="{{ search }}">
+                        {% endif %}
+                        {% if category %}
+                            <input type="hidden" name="category" value="{{ category }}">
+                        {% endif %}
+                        {% if kind != 'all' %}
+                            <input type="hidden" name="kind" value="{{ kind }}">
+                        {% endif %}
+                        {% if availability %}
+                            <input type="hidden" name="availability" value="{{ availability }}">
+                        {% endif %}
+                        <select class="sort-dropdown" name="sort" onchange="this.form.submit()">
+                            {% for option in sort_options %}
+                                <option value="{{ option.value }}"{% if sort == option.value %} selected{% endif %}>{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+
+                <div class="card-grid">
+                    {% for card in results %}
+                        <article class="result-card">
+                            <div class="card-media">
+                                <i class="fa-solid {{ card.icon }}" aria-hidden="true"></i>
+                            </div>
+                            <div class="card-info">
+                                <h3>{{ card.title }}</h3>
+                                <span class="type-badge">
+                                    <i class="fa-solid {% if card.kind == 'venue' %}fa-location-dot{% else %}fa-bolt{% endif %}" aria-hidden="true"></i>
+                                    {{ card.type_label }}
+                                </span>
+
+                                <div class="meta-row">
+                                    {% for item in card.meta %}
+                                        <span><i class="fa-solid {{ item.icon }}" aria-hidden="true"></i> {{ item.text }}</span>
+                                    {% endfor %}
+                                </div>
+
+                                <p class="card-copy">{{ card.description }}</p>
+
+                                <div class="tags">
+                                    {% for tag in card.tags %}
+                                        <span class="service-tag">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+
+                                <div class="card-actions">
+                                    <span class="price">Rs {{ card.price_display }} <small>{{ card.price_unit }}</small></span>
+                                    <a href="{{ card.href }}" class="btn-sm">{{ card.cta_label }}</a>
+                                </div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <article class="explore-empty">
+                            <h3>No listings match this combination yet.</h3>
+                            <p>Try changing the location, removing the availability filter, or switching between venue and service tabs.</p>
+                        </article>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <aside class="sticky-panel">
+                <div class="map-placeholder">
+                    <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>
+                    <span>{% if area %}{{ area }}, {% endif %}{{ city }}</span>
+                    <span class="map-pill">location overview</span>
+                </div>
+
+                <div class="nearby-services">
+                    <h4><i class="fa-solid fa-bolt" aria-hidden="true"></i> Individual services near you</h4>
+                    <div class="service-list">
+                        {% for item in nearby_services %}
+                            <div class="service-row">
+                                <span><i class="fa-solid {{ item.icon }}" aria-hidden="true"></i> {{ item.label }}</span>
+                                <span class="service-count">{{ item.count }}</span>
+                            </div>
+                        {% empty %}
+                            <p class="nearby-empty">No service-specific counts yet for this filter.</p>
+                        {% endfor %}
+                    </div>
+                    <div class="panel-link-row">
+                        <a href="{% url 'explore-page' %}?city={{ city|urlencode }}&area={{ area|urlencode }}&kind=services">view all services <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+
+                <div class="suggestion-box">
+                    <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                    <strong>{{ suggestion_title }}</strong>
+                    <p>{{ suggestion_body }}</p>
+                </div>
+            </aside>
+        </div>
+
+        <section class="improvement-note">
+            <h4><i class="fa-solid fa-rocket" aria-hidden="true"></i> Improvement ideas for location-based exploration</h4>
+            <ul class="improvement-list">
+                <li><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i> Auto-detect location and offer a near-me entry point.</li>
+                <li><i class="fa-solid fa-sliders" aria-hidden="true"></i> Add a distance slider for neighborhood and city-wide radius filtering.</li>
+                <li><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Extend available-today into date-range availability search.</li>
+                <li><i class="fa-solid fa-layer-group" aria-hidden="true"></i> Surface venue plus service bundles by locality.</li>
+                <li><i class="fa-solid fa-car-side" aria-hidden="true"></i> Estimate travel-time filters for guests and vendors.</li>
+                <li><i class="fa-solid fa-square-parking" aria-hidden="true"></i> Promote area tags such as parking, metro access, and outdoor-friendly.</li>
+            </ul>
+            <div class="improvement-summary">
+                <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+                This page already supports location query params, venue and service tabs, availability filtering, nearby service counts, and a location-specific suggestion panel.
+            </div>
+        </section>
+
+        <footer class="explore-footer">
+            <div>Vianue | explore by location</div>
+            <div>&copy; 2026 | {{ city }}</div>
+        </footer>
+    </div>
+</section>
+{% endblock %}

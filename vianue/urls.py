@@ -4,6 +4,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .web_views import (
     AdminDashboardPageView,
     DashboardRedirectView,
+    ExplorePageView,
     HomePageView,
     LoginPageView,
     OwnerDashboardPageView,
@@ -13,6 +14,7 @@ from .web_views import (
 
 urlpatterns = [
     path('', HomePageView.as_view(), name='home'),
+    path('explore/', ExplorePageView.as_view(), name='explore-page'),
     path('login/', LoginPageView.as_view(), name='login-page'),
     path('register/', RegisterPageView.as_view(), name='register-page'),
     path('dashboard/', DashboardRedirectView.as_view(), name='dashboard-redirect'),

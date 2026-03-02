@@ -1,50 +1,282 @@
 {% extends "base.html" %}
 
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
 {% block content %}
-<section class="hero-panel reveal">
-    <div class="hero-copy">
-        <p class="eyebrow">Web templates over the existing APIs</p>
-        <h1>Operate registration, login, and moderation without leaving Django.</h1>
-        <p class="hero-text">
-            These pages call the existing JWT auth and admin review endpoints, so the UI stays tied to the API contract already in this repo.
-        </p>
-        <div class="hero-actions">
-            <a class="button button-primary" href="{% url 'register-page' %}">Create account</a>
-            <a class="button button-secondary" href="{% url 'login-page' %}">Sign in</a>
-            <a class="button button-ghost" href="{% url 'dashboard-redirect' %}">Open my dashboard</a>
+<section class="landing-hero">
+    <div class="landing-container landing-hero-grid">
+        <div class="landing-hero-copy reveal">
+            <p class="landing-eyebrow">Venue and service booking</p>
+            <h1>Book spaces and services for events that need to feel seamless.</h1>
+            <p class="landing-intro">
+                Discover banquet halls, resorts, and farmhouses, then layer in photography, catering, decor, lighting, and sound from one booking flow.
+            </p>
+
+            <form class="landing-search" action="{% url 'explore-page' %}" method="get">
+                <label class="landing-search-field landing-search-query">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <span class="sr-only">Search</span>
+                    <input type="text" name="q" placeholder="Search venue or service">
+                </label>
+                <label class="landing-search-field landing-search-select">
+                    <span class="sr-only">Category</span>
+                    <select name="category">
+                        <option value="">Select category</option>
+                        <option value="venues">Venues</option>
+                        <option value="photography">Photography</option>
+                        <option value="catering">Catering</option>
+                        <option value="decor">Decor</option>
+                        <option value="sound">Sound and DJ</option>
+                    </select>
+                </label>
+                <button class="landing-button landing-button-primary landing-search-button" type="submit">
+                    Start planning
+                    <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+
+            <div class="landing-metrics" aria-label="Platform highlights">
+                <div class="landing-metric">
+                    <strong>3</strong>
+                    <span>venue formats</span>
+                </div>
+                <div class="landing-metric">
+                    <strong>6</strong>
+                    <span>service lines</span>
+                </div>
+                <div class="landing-metric">
+                    <strong>1</strong>
+                    <span>booking workspace</span>
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="hero-aside">
-        <article class="info-card">
-            <span class="card-kicker">Admin review</span>
-            <h2>Pending venues and services</h2>
-            <p>Use the dashboard to approve or reject records through the existing `/api/adminpanel/` endpoints.</p>
-            <a class="text-link" href="{% url 'admin-dashboard-page' %}">Open dashboard</a>
-        </article>
-        <article class="info-card">
-            <span class="card-kicker">API tooling</span>
-            <h2>Swagger stays available</h2>
-            <p>Schema docs remain at `/api/docs/` for direct API exploration and debugging.</p>
-            <a class="text-link" href="{% url 'swagger-ui' %}">Open Swagger</a>
-        </article>
+
+        <div class="landing-hero-visual reveal reveal-delay" aria-hidden="true">
+            <div class="hero-visual-glow hero-visual-glow-top"></div>
+            <div class="hero-visual-glow hero-visual-glow-bottom"></div>
+
+            <div class="hero-visual-card hero-visual-card-main">
+                <span class="hero-visual-kicker">Featured event brief</span>
+                <h2>Lakeview farmhouse weekend</h2>
+                <p>Open lawn ceremony, 250 guests, decor, photography, and dinner service bundled in one quote.</p>
+                <div class="hero-visual-meta">
+                    <span><i class="fa-solid fa-location-dot"></i> Destination-ready</span>
+                    <span><i class="fa-solid fa-star"></i> Curated add-ons</span>
+                </div>
+            </div>
+
+            <div class="hero-visual-card hero-visual-card-mini hero-visual-card-left">
+                <i class="fa-solid fa-camera-retro"></i>
+                <div>
+                    <strong>Photography</strong>
+                    <span>Stills, reels, candid coverage</span>
+                </div>
+            </div>
+
+            <div class="hero-visual-card hero-visual-card-mini hero-visual-card-right">
+                <i class="fa-solid fa-utensils"></i>
+                <div>
+                    <strong>Catering</strong>
+                    <span>Custom menus and guest counts</span>
+                </div>
+            </div>
+
+            <div class="hero-visual-panel">
+                <div class="hero-visual-panel-top">
+                    <span>Bundle planner</span>
+                    <strong>Venue + services</strong>
+                </div>
+                <ul class="hero-visual-list">
+                    <li><span>Banquet hall hold</span><strong>Ready</strong></li>
+                    <li><span>Decor setup</span><strong>Added</strong></li>
+                    <li><span>Sound check</span><strong>Optional</strong></li>
+                </ul>
+            </div>
+        </div>
     </div>
 </section>
 
-<section class="grid-panels reveal reveal-delay">
-    <article class="feature-panel">
-        <span class="panel-number">01</span>
-        <h2>Register against the auth API</h2>
-        <p>Captures username, email, phone, role, and password, then submits to `/api/auth/register`.</p>
-    </article>
-    <article class="feature-panel">
-        <span class="panel-number">02</span>
-        <h2>Role-based dashboard routing</h2>
-        <p>After login, owners go to venue management, vendors go to service management, and staff users go to moderation.</p>
-    </article>
-    <article class="feature-panel">
-        <span class="panel-number">03</span>
-        <h2>Admin decision queue</h2>
-        <p>Loads pending venues and services, exposes approve and reject actions, and refreshes the queue in place.</p>
-    </article>
+<section class="landing-section" id="venues">
+    <div class="landing-container">
+        <div class="landing-section-head reveal">
+            <h2>Find the venue that sets the tone</h2>
+            <p>From formal indoor celebrations to weekend destination stays, Vianue helps guests start with the right setting and build from there.</p>
+        </div>
+
+        <div class="landing-card-grid reveal reveal-delay">
+            <article class="landing-venue-card">
+                <div class="landing-card-icon">
+                    <i class="fa-solid fa-champagne-glasses" aria-hidden="true"></i>
+                </div>
+                <h3>Banquet halls</h3>
+                <p>Elegant indoor spaces for weddings, receptions, launches, and large-format private gatherings.</p>
+                <span class="landing-chip">Reception-ready</span>
+            </article>
+
+            <article class="landing-venue-card">
+                <div class="landing-card-icon">
+                    <i class="fa-solid fa-umbrella-beach" aria-hidden="true"></i>
+                </div>
+                <h3>Resorts</h3>
+                <p>Poolside and lawn settings that work for destination events, team retreats, and weekend stays.</p>
+                <span class="landing-chip">Stay plus celebration</span>
+            </article>
+
+            <article class="landing-venue-card">
+                <div class="landing-card-icon">
+                    <i class="fa-solid fa-tree" aria-hidden="true"></i>
+                </div>
+                <h3>Farmhouses</h3>
+                <p>Open-air properties with a quieter, more flexible backdrop for outdoor weddings and private parties.</p>
+                <span class="landing-chip">Open-air events</span>
+            </article>
+        </div>
+    </div>
 </section>
+
+<section class="landing-section landing-section-soft" id="services">
+    <div class="landing-container">
+        <div class="landing-section-head reveal">
+            <h2>Pair the venue with the right service team</h2>
+            <p>Bring the event crew into the same plan so photography, catering, decor, lighting, and music can be shortlisted together.</p>
+        </div>
+
+        <div class="landing-service-grid reveal reveal-delay">
+            <article class="landing-service-card">
+                <i class="fa-solid fa-camera"></i>
+                <h3>Photography</h3>
+                <span>Portraits, candids, reels</span>
+            </article>
+            <article class="landing-service-card">
+                <i class="fa-solid fa-utensils"></i>
+                <h3>Catering</h3>
+                <span>Buffets, plated menus, tasting</span>
+            </article>
+            <article class="landing-service-card">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <h3>Decor</h3>
+                <span>Stage, floral, table styling</span>
+            </article>
+            <article class="landing-service-card">
+                <i class="fa-solid fa-lightbulb"></i>
+                <h3>Lighting</h3>
+                <span>Ambient, stage, outdoor rigs</span>
+            </article>
+            <article class="landing-service-card">
+                <i class="fa-solid fa-music"></i>
+                <h3>Sound and DJ</h3>
+                <span>Playback, hosting, live setup</span>
+            </article>
+            <article class="landing-service-card">
+                <i class="fa-solid fa-video"></i>
+                <h3>Cinematography</h3>
+                <span>Highlight films and edits</span>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="landing-section-head reveal">
+            <h2>How Vianue works</h2>
+            <p>Browse options, bundle what you need, and move into your account only when the shortlist is ready to become a booking.</p>
+        </div>
+
+        <div class="landing-steps reveal reveal-delay">
+            <article class="landing-step">
+                <span class="landing-step-number">1</span>
+                <h3>Browse and compare</h3>
+                <p>Review venue formats and services side by side before you commit to a booking path.</p>
+            </article>
+            <article class="landing-step">
+                <span class="landing-step-number">2</span>
+                <h3>Bundle the shortlist</h3>
+                <p>Start with the space, then add catering, decor, photo, lighting, or music as one plan.</p>
+            </article>
+            <article class="landing-step">
+                <span class="landing-step-number">3</span>
+                <h3>Continue inside Vianue</h3>
+                <p>Move into account creation or sign in when you are ready to manage bookings and approvals.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section" id="inspiration">
+    <div class="landing-container">
+        <div class="landing-showcase reveal">
+            <div class="landing-showcase-copy">
+                <span class="landing-eyebrow">Built for mixed-format events</span>
+                <h2>Weddings, birthdays, launches, and conferences in one booking rhythm.</h2>
+                <p>Choose the venue first, then build the supporting service stack from the same interface so the quote and handoff stay coherent.</p>
+                <div class="landing-showcase-actions">
+                    <a class="landing-button landing-button-primary" href="{% url 'explore-page' %}">Explore packages</a>
+                    <a class="landing-button landing-button-secondary" href="{% url 'dashboard-redirect' %}">Open dashboard</a>
+                </div>
+            </div>
+
+            <div class="landing-showcase-grid">
+                <article class="landing-showcase-card">
+                    <i class="fa-solid fa-cake-candles"></i>
+                    <span>Birthday bash</span>
+                </article>
+                <article class="landing-showcase-card">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <span>Corporate offsite</span>
+                </article>
+                <article class="landing-showcase-card">
+                    <i class="fa-solid fa-heart"></i>
+                    <span>Wedding weekend</span>
+                </article>
+                <article class="landing-showcase-card">
+                    <i class="fa-solid fa-microphone-lines"></i>
+                    <span>Stage event</span>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="landing-section">
+    <div class="landing-container">
+        <div class="landing-cta reveal">
+            <div>
+                <span class="landing-eyebrow landing-eyebrow-light">Ready to plan</span>
+                <h2>Start planning in one place before the details scatter across calls and chats.</h2>
+                <p>Create an account to shortlist venues, compare service bundles, and move into owner or vendor workflows when it is time to manage the booking.</p>
+            </div>
+            <div class="landing-cta-actions">
+                <a class="landing-button landing-button-light" href="{% url 'register-page' %}">Get started free</a>
+                <a class="landing-button landing-button-link" href="{% url 'login-page' %}">Sign in</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="landing-footer" id="contact">
+    <div class="landing-container landing-footer-inner">
+        <a class="brand brand-home" href="{% url 'home' %}">
+            <span class="brand-mark">V</span>
+            <span class="brand-copy">
+                <strong>Vianue</strong>
+                <small>Venue and event service booking</small>
+            </span>
+        </a>
+
+        <nav class="landing-footer-links" aria-label="Footer">
+            <a href="#venues">Venues</a>
+            <a href="#services">Services</a>
+            <a href="{% url 'login-page' %}">Sign in</a>
+            <a href="{% url 'register-page' %}">Register</a>
+        </nav>
+
+        <p class="landing-footer-copy">&copy; 2026 Vianue</p>
+    </div>
+</footer>
 {% endblock %}
