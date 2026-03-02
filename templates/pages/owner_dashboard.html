@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-intro reveal">
+        <div>
+            <p class="eyebrow">Owner workspace</p>
+            <h1>Manage your venues</h1>
+            <p class="hero-text">
+                This dashboard works through `/api/venues/owner/` and its submit action so owners can create, edit, delete, and submit their own venue listings.
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="button button-secondary" type="button" data-refresh-owner>Refresh venues</button>
+            <button class="button button-ghost" type="button" data-logout>Log out</button>
+        </div>
+    </div>
+
+    <section class="summary-grid reveal reveal-delay">
+        <article class="summary-card">
+            <span>Signed in owner</span>
+            <strong data-owner-user>{{ dashboard_user.username|default:"Owner" }}</strong>
+        </article>
+        <article class="summary-card">
+            <span>Total venues</span>
+            <strong data-owner-venue-count>0</strong>
+        </article>
+        <article class="summary-card">
+            <span>Pending approval</span>
+            <strong data-owner-pending-count>0</strong>
+        </article>
+    </section>
+
+    <p class="dashboard-status" data-owner-status aria-live="polite"></p>
+
+    <section class="review-grid">
+        <article class="review-panel reveal">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Venue form</p>
+                    <h2>Create or update a venue</h2>
+                </div>
+                <span class="pill" data-owner-form-mode>Create</span>
+            </div>
+
+            <form class="stack-form" data-owner-form>
+                <input type="hidden" name="venue_id">
+                <label class="field">
+                    <span>Name</span>
+                    <input type="text" name="name" required>
+                </label>
+                <label class="field">
+                    <span>Venue type</span>
+                    <input type="text" name="venue_type">
+                </label>
+                <label class="field">
+                    <span>Description</span>
+                    <textarea name="description" rows="4"></textarea>
+                </label>
+                <label class="field">
+                    <span>Address</span>
+                    <input type="text" name="address" required>
+                </label>
+                <div class="field-grid">
+                    <label class="field">
+                        <span>City</span>
+                        <input type="text" name="city" required>
+                    </label>
+                    <label class="field">
+                        <span>State</span>
+                        <input type="text" name="state">
+                    </label>
+                </div>
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Country</span>
+                        <input type="text" name="country">
+                    </label>
+                    <label class="field">
+                        <span>Pincode</span>
+                        <input type="text" name="pincode">
+                    </label>
+                </div>
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Min capacity</span>
+                        <input type="number" min="1" name="capacity_min" value="1" required>
+                    </label>
+                    <label class="field">
+                        <span>Max capacity</span>
+                        <input type="number" min="1" name="capacity_max" value="100" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Base price</span>
+                    <input type="number" min="0" step="0.01" name="base_price" value="0">
+                </label>
+                <div class="queue-actions">
+                    <button class="button button-primary" type="submit">Save venue</button>
+                    <button class="button button-secondary" type="button" data-owner-reset>Reset form</button>
+                </div>
+            </form>
+        </article>
+
+        <article class="review-panel reveal reveal-delay">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Venue list</p>
+                    <h2>Your venues</h2>
+                </div>
+                <span class="pill" data-owner-list-pill>0 venues</span>
+            </div>
+            <div class="review-list" data-owner-venues></div>
+        </article>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/owner-dashboard.js' %}"></script>
+{% endblock %}

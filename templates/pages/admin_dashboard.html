@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-intro reveal">
+        <div>
+            <p class="eyebrow">Moderation console</p>
+            <h1>Admin review dashboard</h1>
+            <p class="hero-text">
+                This screen consumes `/api/auth/me`, `/api/adminpanel/venues/pending`, and `/api/adminpanel/services/pending` using the JWT stored at login.
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="button button-secondary" type="button" data-refresh-dashboard>Refresh queue</button>
+            <button class="button button-ghost" type="button" data-logout>Log out</button>
+        </div>
+    </div>
+
+    <section class="summary-grid reveal reveal-delay">
+        <article class="summary-card">
+            <span>Signed in user</span>
+            <strong data-user-label>Checking session</strong>
+        </article>
+        <article class="summary-card">
+            <span>Pending venues</span>
+            <strong data-venues-count>0</strong>
+        </article>
+        <article class="summary-card">
+            <span>Pending services</span>
+            <strong data-services-count>0</strong>
+        </article>
+    </section>
+
+    <p class="dashboard-status" data-dashboard-status aria-live="polite"></p>
+
+    <section class="review-grid">
+        <article class="review-panel reveal">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Venues</p>
+                    <h2>Pending venue approvals</h2>
+                </div>
+                <span class="pill" data-venues-count-pill>0 queued</span>
+            </div>
+            <div class="review-list" data-review-list="venues"></div>
+        </article>
+
+        <article class="review-panel reveal reveal-delay">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Services</p>
+                    <h2>Pending service approvals</h2>
+                </div>
+                <span class="pill" data-services-count-pill>0 queued</span>
+            </div>
+            <div class="review-list" data-review-list="services"></div>
+        </article>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/admin-dashboard.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="split-layout">
+    <div class="panel-copy reveal">
+        <p class="eyebrow">JWT session</p>
+        <h1>Sign in to work the platform.</h1>
+        <p class="hero-text">
+            This page calls `/api/auth/login`, stores the returned JWT pair locally, and uses that token for dashboard and profile requests.
+        </p>
+        <div class="stacked-notes">
+            <div class="note-card">
+                <strong>Admin access</strong>
+                <p>The moderation dashboard still depends on a Django staff or superuser account because the admin APIs use `IsAdminUser`.</p>
+            </div>
+            <div class="note-card">
+                <strong>Next step</strong>
+                <p>After login, the interface sends you straight to the admin dashboard page.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-shell reveal reveal-delay">
+        <form class="form-card" data-auth-form data-mode="login">
+            <div class="form-head">
+                <p class="eyebrow">Login</p>
+                <h2>Access your account</h2>
+            </div>
+
+            <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" autocomplete="username" required>
+            </label>
+
+            <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" autocomplete="current-password" required>
+            </label>
+
+            <button class="button button-primary" type="submit">Sign in</button>
+            <p class="form-status" data-form-status aria-live="polite"></p>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/auth-pages.js' %}"></script>
+{% endblock %}

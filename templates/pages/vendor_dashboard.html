@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-intro reveal">
+        <div>
+            <p class="eyebrow">Vendor workspace</p>
+            <h1>Manage your services</h1>
+            <p class="hero-text">
+                This dashboard uses `/api/services/vendor/` for service listings and `/api/services/vendor/requests/` for incoming booking requests.
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <button class="button button-secondary" type="button" data-refresh-vendor>Refresh services</button>
+            <button class="button button-ghost" type="button" data-logout>Log out</button>
+        </div>
+    </div>
+
+    <section class="summary-grid reveal reveal-delay">
+        <article class="summary-card">
+            <span>Signed in vendor</span>
+            <strong data-vendor-user>{{ dashboard_user.username|default:"Vendor" }}</strong>
+        </article>
+        <article class="summary-card">
+            <span>Total services</span>
+            <strong data-vendor-service-count>0</strong>
+        </article>
+        <article class="summary-card">
+            <span>Incoming requests</span>
+            <strong data-vendor-request-count>0</strong>
+        </article>
+    </section>
+
+    <p class="dashboard-status" data-vendor-status aria-live="polite"></p>
+
+    <section class="review-grid">
+        <article class="review-panel reveal">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Service form</p>
+                    <h2>Create or update a service</h2>
+                </div>
+                <span class="pill" data-vendor-form-mode>Create</span>
+            </div>
+
+            <form class="stack-form" data-vendor-form>
+                <input type="hidden" name="service_id">
+                <label class="field">
+                    <span>Title</span>
+                    <input type="text" name="title" required>
+                </label>
+                <label class="field">
+                    <span>Description</span>
+                    <textarea name="description" rows="4"></textarea>
+                </label>
+                <label class="field">
+                    <span>Pricing model</span>
+                    <select name="pricing_model" required>
+                        <option value="FIXED">Fixed</option>
+                        <option value="PER_HOUR">Per hour</option>
+                        <option value="PER_GUEST">Per guest</option>
+                        <option value="CUSTOM_QUOTE">Custom quote</option>
+                    </select>
+                </label>
+                <div class="field-grid">
+                    <label class="field">
+                        <span>Base price</span>
+                        <input type="number" min="0" step="0.01" name="base_price" value="0">
+                    </label>
+                    <label class="field">
+                        <span>Minimum order value</span>
+                        <input type="number" min="0" step="0.01" name="min_order_value" value="0">
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Max guests supported</span>
+                    <input type="number" min="1" name="max_guests_supported">
+                </label>
+                <div class="queue-actions">
+                    <button class="button button-primary" type="submit">Save service</button>
+                    <button class="button button-secondary" type="button" data-vendor-reset>Reset form</button>
+                </div>
+            </form>
+        </article>
+
+        <article class="review-panel reveal reveal-delay">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Service list</p>
+                    <h2>Your service catalog</h2>
+                </div>
+                <span class="pill" data-vendor-list-pill>0 services</span>
+            </div>
+            <div class="review-list" data-vendor-services></div>
+        </article>
+    </section>
+
+    <article class="review-panel reveal reveal-delay">
+        <div class="review-head">
+            <div>
+                <p class="eyebrow">Requests</p>
+                <h2>Incoming booking requests</h2>
+            </div>
+            <span class="pill" data-vendor-request-pill>0 requests</span>
+        </div>
+        <div class="review-list" data-vendor-requests></div>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/vendor-dashboard.js' %}"></script>
+{% endblock %}

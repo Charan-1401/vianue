@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }} | Vianue</title>
+    <link rel="stylesheet" href="{% static 'css/site.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body class="page-shell page-{{ page_key|default:'default' }}">
+    <div class="ambient ambient-top"></div>
+    <div class="ambient ambient-bottom"></div>
+    <header class="site-header">
+        <a class="brand" href="{% url 'home' %}">
+            <span class="brand-mark">VN</span>
+            <span class="brand-copy">
+                <strong>Vianue</strong>
+                <small>Venue operations console</small>
+            </span>
+        </a>
+        <nav class="site-nav">
+            <a href="{% url 'register-page' %}" {% if page_key == 'register' %}aria-current="page"{% endif %}>Register</a>
+            <a href="{% url 'login-page' %}" {% if page_key == 'login' %}aria-current="page"{% endif %}>Login</a>
+            <a href="{% url 'dashboard-redirect' %}">My Dashboard</a>
+            <a href="{% url 'owner-dashboard-page' %}" {% if page_key == 'owner-dashboard' %}aria-current="page"{% endif %}>Owner</a>
+            <a href="{% url 'vendor-dashboard-page' %}" {% if page_key == 'vendor-dashboard' %}aria-current="page"{% endif %}>Vendor</a>
+            <a href="{% url 'admin-dashboard-page' %}" {% if page_key == 'admin-dashboard' %}aria-current="page"{% endif %}>Admin</a>
+            <a href="{% url 'swagger-ui' %}">Swagger</a>
+        </nav>
+    </header>
+    <main class="page-main">
+        {% block content %}{% endblock %}
+    </main>
+    <script src="{% static 'js/session.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

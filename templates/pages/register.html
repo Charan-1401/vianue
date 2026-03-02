@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="split-layout">
+    <div class="panel-copy reveal">
+        <p class="eyebrow">Account onboarding</p>
+        <h1>Create a Vianue user profile.</h1>
+        <p class="hero-text">
+            The registration form posts directly to `/api/auth/register`. It does not bypass the API or create a separate HTML-only account path.
+        </p>
+        <div class="stacked-notes">
+            <div class="note-card">
+                <strong>Available roles</strong>
+                <p>Customer, Owner, Vendor, and Admin match the backend serializer choices.</p>
+            </div>
+            <div class="note-card">
+                <strong>Admin note</strong>
+                <p>Selecting the Admin role does not grant staff privileges by itself. Django staff status still has to be set separately.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-shell reveal reveal-delay">
+        <form class="form-card" data-auth-form data-mode="register">
+            <div class="form-head">
+                <p class="eyebrow">Register</p>
+                <h2>Open a new account</h2>
+            </div>
+
+            <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" autocomplete="username" required>
+            </label>
+
+            <label class="field">
+                <span>Email</span>
+                <input type="email" name="email" autocomplete="email" required>
+            </label>
+
+            <label class="field">
+                <span>Phone</span>
+                <input type="tel" name="phone" autocomplete="tel">
+            </label>
+
+            <label class="field">
+                <span>Role</span>
+                <select name="role" required>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="OWNER">Owner</option>
+                    <option value="VENDOR">Vendor</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </label>
+
+            <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" autocomplete="new-password" required>
+            </label>
+
+            <button class="button button-primary" type="submit">Create account</button>
+            <p class="form-status" data-form-status aria-live="polite"></p>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/auth-pages.js' %}"></script>
+{% endblock %}

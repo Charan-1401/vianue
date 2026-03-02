@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-panel reveal">
+    <div class="hero-copy">
+        <p class="eyebrow">Web templates over the existing APIs</p>
+        <h1>Operate registration, login, and moderation without leaving Django.</h1>
+        <p class="hero-text">
+            These pages call the existing JWT auth and admin review endpoints, so the UI stays tied to the API contract already in this repo.
+        </p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{% url 'register-page' %}">Create account</a>
+            <a class="button button-secondary" href="{% url 'login-page' %}">Sign in</a>
+            <a class="button button-ghost" href="{% url 'dashboard-redirect' %}">Open my dashboard</a>
+        </div>
+    </div>
+    <div class="hero-aside">
+        <article class="info-card">
+            <span class="card-kicker">Admin review</span>
+            <h2>Pending venues and services</h2>
+            <p>Use the dashboard to approve or reject records through the existing `/api/adminpanel/` endpoints.</p>
+            <a class="text-link" href="{% url 'admin-dashboard-page' %}">Open dashboard</a>
+        </article>
+        <article class="info-card">
+            <span class="card-kicker">API tooling</span>
+            <h2>Swagger stays available</h2>
+            <p>Schema docs remain at `/api/docs/` for direct API exploration and debugging.</p>
+            <a class="text-link" href="{% url 'swagger-ui' %}">Open Swagger</a>
+        </article>
+    </div>
+</section>
+
+<section class="grid-panels reveal reveal-delay">
+    <article class="feature-panel">
+        <span class="panel-number">01</span>
+        <h2>Register against the auth API</h2>
+        <p>Captures username, email, phone, role, and password, then submits to `/api/auth/register`.</p>
+    </article>
+    <article class="feature-panel">
+        <span class="panel-number">02</span>
+        <h2>Role-based dashboard routing</h2>
+        <p>After login, owners go to venue management, vendors go to service management, and staff users go to moderation.</p>
+    </article>
+    <article class="feature-panel">
+        <span class="panel-number">03</span>
+        <h2>Admin decision queue</h2>
+        <p>Loads pending venues and services, exposes approve and reject actions, and refreshes the queue in place.</p>
+    </article>
+</section>
+{% endblock %}

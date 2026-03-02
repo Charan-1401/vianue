@@ -1,0 +1,10 @@
+Django>=4.2
+djangorestframework
+djangorestframework-simplejwt
+psycopg2-binary
+celery[redis]
+redis
+drf-spectacular
+django-storages
+stripe
+python-dotenv
