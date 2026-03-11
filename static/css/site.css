@@ -382,6 +382,39 @@ h2 {
     min-height: 7rem;
 }
 
+.field-note {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--ink-soft);
+    font-size: 0.86rem;
+    line-height: 1.45;
+}
+
+.form-section {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+    border: 1px solid rgba(17, 53, 58, 0.08);
+    border-radius: 1.2rem;
+    background: rgba(17, 53, 58, 0.03);
+}
+
+.form-section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.form-section-head p {
+    margin: 0;
+}
+
+.form-section-head span {
+    color: var(--ink-soft);
+    font-size: 0.9rem;
+}
+
 .form-status,
 .dashboard-status {
     min-height: 1.4rem;
@@ -510,6 +543,63 @@ h2 {
     line-height: 1.55;
 }
 
+.social-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0 0 0.9rem;
+}
+
+.social-link {
+    padding: 0.45rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid rgba(17, 53, 58, 0.12);
+    background: rgba(17, 53, 58, 0.04);
+    color: var(--accent-dark);
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 0.8rem;
+    margin: 0 0 0.9rem;
+}
+
+.media-card {
+    margin: 0;
+    padding: 0.65rem;
+    border: 1px solid rgba(17, 53, 58, 0.1);
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.84);
+}
+
+.media-card img,
+.media-card video {
+    display: block;
+    width: 100%;
+    height: 9rem;
+    border-radius: 0.8rem;
+    object-fit: cover;
+    background: rgba(17, 53, 58, 0.08);
+}
+
+.media-card figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin-top: 0.6rem;
+    color: var(--ink-soft);
+    font-size: 0.84rem;
+}
+
+.button-compact {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.82rem;
+}
+
 .request-snapshot {
     margin: 0 0 0.9rem;
     padding: 0.9rem;
@@ -575,6 +665,12 @@ h2 {
 
     .queue-item header,
     .review-head {
+        flex-direction: column;
+    }
+
+    .form-section-head,
+    .media-card figcaption {
+        align-items: start;
         flex-direction: column;
     }
 }

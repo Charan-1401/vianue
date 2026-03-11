@@ -1,3 +1,5 @@
+let vendorServiceCache = [];
+
 function vendorStatus(message, tone) {
     const node = document.querySelector("[data-vendor-status]");
     node.textContent = message;
@@ -16,6 +18,22 @@ function vendorEscape(value) {
         .replaceAll("'", "&#39;");
 }
 
+function normalizeOptionalUrl(value) {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return "";
+    }
+    return /^[a-z]+:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function appendFormValue(formData, key, value) {
+    if (value === null || value === undefined) {
+        formData.append(key, "");
+        return;
+    }
+    formData.append(key, String(value));
+}
+
 function vendorPayload(form) {
     const maxGuests = form.max_guests_supported.value.trim();
     return {
@@ -25,9 +43,23 @@ function vendorPayload(form) {
         base_price: form.base_price.value || "0.00",
         min_order_value: form.min_order_value.value || "0.00",
         max_guests_supported: maxGuests ? Number(maxGuests) : null,
-        travel_fee_rule: {},
-        cancellation_policy: {},
+        instagram_url: normalizeOptionalUrl(form.instagram_url.value),
+        facebook_url: normalizeOptionalUrl(form.facebook_url.value),
+        youtube_url: normalizeOptionalUrl(form.youtube_url.value),
+        website_url: normalizeOptionalUrl(form.website_url.value),
+        travel_fee_rule: "{}",
+        cancellation_policy: "{}",
     };
+}
+
+function vendorFormData(form) {
+    const payload = vendorPayload(form);
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => appendFormValue(formData, key, value));
+    Array.from(form.media_uploads.files).forEach((file) => {
+        formData.append("media_uploads", file);
+    });
+    return formData;
 }
 
 function resetVendorForm() {
@@ -48,8 +80,64 @@ function fillVendorForm(item) {
     form.base_price.value = item.base_price || 0;
     form.min_order_value.value = item.min_order_value || 0;
     form.max_guests_supported.value = item.max_guests_supported || "";
+    form.instagram_url.value = item.instagram_url || "";
+    form.facebook_url.value = item.facebook_url || "";
+    form.youtube_url.value = item.youtube_url || "";
+    form.website_url.value = item.website_url || "";
     document.querySelector("[data-vendor-form-mode]").textContent = `Edit #${item.id}`;
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function vendorSocialMarkup(item) {
+    const links = [
+        ["Instagram", item.instagram_url],
+        ["Facebook", item.facebook_url],
+        ["YouTube", item.youtube_url],
+        ["Website", item.website_url],
+    ].filter(([, url]) => url);
+
+    if (!links.length) {
+        return "";
+    }
+
+    return `
+        <div class="social-links">
+            ${links.map(([label, url]) => `
+                <a class="social-link" href="${vendorEscape(url)}" target="_blank" rel="noreferrer">
+                    ${vendorEscape(label)}
+                </a>
+            `).join("")}
+        </div>
+    `;
+}
+
+function vendorMediaMarkup(item) {
+    if (!item.media?.length) {
+        return "";
+    }
+
+    return `
+        <div class="media-grid">
+            ${item.media.map((media) => `
+                <figure class="media-card">
+                    ${media.is_video
+                        ? `<video src="${vendorEscape(media.file)}" controls preload="metadata"></video>`
+                        : `<img src="${vendorEscape(media.file)}" alt="${vendorEscape(item.title)} media" loading="lazy">`
+                    }
+                    <figcaption>
+                        <span>${media.is_video ? "Video" : "Photo"}</span>
+                        <button
+                            class="button button-danger button-compact"
+                            type="button"
+                            data-vendor-media-delete="${item.id}:${media.id}"
+                        >
+                            Remove
+                        </button>
+                    </figcaption>
+                </figure>
+            `).join("")}
+        </div>
+    `;
 }
 
 function renderVendorServices(items) {
@@ -71,11 +159,14 @@ function renderVendorServices(items) {
                         <span>${vendorEscape(item.pricing_model)}</span>
                         <span>Base ${vendorEscape(item.base_price)}</span>
                         <span>Min order ${vendorEscape(item.min_order_value)}</span>
+                        <span>${item.media?.length || 0} uploads</span>
                     </div>
                 </div>
                 <span class="pill">${vendorEscape(item.status)}</span>
             </header>
             <p class="queue-description">${vendorEscape(item.description || "No description provided.")}</p>
+            ${vendorSocialMarkup(item)}
+            ${vendorMediaMarkup(item)}
             <div class="queue-actions">
                 <button class="button button-secondary" type="button" data-vendor-edit="${item.id}">Edit</button>
                 <button class="button button-primary" type="button" data-vendor-submit="${item.id}">Submit for review</button>
@@ -129,6 +220,7 @@ async function loadVendorDashboard() {
                 headers: VianueSession.authHeaders(),
             }),
         ]);
+        vendorServiceCache = services;
         document.querySelector("[data-vendor-user]").textContent = me.username;
         renderVendorServices(services);
         renderVendorRequests(requests);
@@ -160,8 +252,8 @@ async function saveVendorService(event) {
     try {
         await VianueSession.fetchJson(url, {
             method,
-            headers: VianueSession.authHeaders(),
-            body: JSON.stringify(vendorPayload(form)),
+            headers: VianueSession.authHeaders({ json: false }),
+            body: vendorFormData(form),
         });
         resetVendorForm();
         await loadVendorDashboard();
@@ -197,6 +289,19 @@ async function deleteVendorService(id) {
     }
 }
 
+async function deleteVendorMedia(serviceId, mediaId) {
+    vendorStatus("Removing media.", null);
+    try {
+        await VianueSession.fetchJson(`/api/services/vendor/${serviceId}/media/${mediaId}/`, {
+            method: "DELETE",
+            headers: VianueSession.authHeaders(),
+        });
+        await loadVendorDashboard();
+    } catch (error) {
+        vendorStatus(error.message || "Unable to delete media.", "error");
+    }
+}
+
 async function vendorDecision(id, action) {
     vendorStatus(`Submitting ${action} decision.`, null);
     try {
@@ -219,13 +324,10 @@ document.querySelector("[data-logout]")?.addEventListener("click", () => {
     window.location.href = "/login/";
 });
 
-document.addEventListener("click", async (event) => {
+document.addEventListener("click", (event) => {
     const editButton = event.target.closest("[data-vendor-edit]");
     if (editButton) {
-        const services = await VianueSession.fetchJson("/api/services/vendor/", {
-            headers: VianueSession.authHeaders(),
-        });
-        const item = services.find((service) => String(service.id) === editButton.dataset.vendorEdit);
+        const item = vendorServiceCache.find((service) => String(service.id) === editButton.dataset.vendorEdit);
         if (item) {
             fillVendorForm(item);
         }
@@ -241,6 +343,13 @@ document.addEventListener("click", async (event) => {
     const deleteButton = event.target.closest("[data-vendor-delete]");
     if (deleteButton) {
         deleteVendorService(deleteButton.dataset.vendorDelete);
+        return;
+    }
+
+    const mediaDeleteButton = event.target.closest("[data-vendor-media-delete]");
+    if (mediaDeleteButton) {
+        const [serviceId, mediaId] = mediaDeleteButton.dataset.vendorMediaDelete.split(":");
+        deleteVendorMedia(serviceId, mediaId);
         return;
     }
 

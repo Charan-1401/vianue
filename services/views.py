@@ -29,7 +29,7 @@ def get_vendor_profile_for_user(user):
 
 
 class ServiceListingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ServiceListing.objects.filter(status='APPROVED')
+    queryset = ServiceListing.objects.filter(status='APPROVED').prefetch_related('packages', 'addons', 'media')
     serializer_class = ServiceListingSerializer
 
 
@@ -38,7 +38,7 @@ class VendorListingViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsVendorRole]
 
     def get_queryset(self):
-        return ServiceListing.objects.filter(vendor__user=self.request.user)
+        return ServiceListing.objects.filter(vendor__user=self.request.user).prefetch_related('media')
 
     def perform_create(self, serializer):
         serializer.save(vendor=get_vendor_profile_for_user(self.request.user))
@@ -52,6 +52,14 @@ class VendorListingViewSet(viewsets.ModelViewSet):
         listing.status = 'PENDING'
         listing.save()
         return Response({'status': 'submitted'})
+
+    @action(detail=True, methods=['delete'], url_path='media/(?P<media_id>[^/.]+)')
+    def delete_media(self, request, pk=None, media_id=None):
+        listing = self.get_object()
+        media = get_object_or_404(listing.media.all(), pk=media_id)
+        media.file.delete(save=False)
+        media.delete()
+        return Response(status=204)
 
 
 class PackageViewSet(viewsets.ModelViewSet):

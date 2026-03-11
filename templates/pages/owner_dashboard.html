@@ -44,7 +44,7 @@
                 <span class="pill" data-owner-form-mode>Create</span>
             </div>
 
-            <form class="stack-form" data-owner-form>
+            <form class="stack-form" data-owner-form enctype="multipart/form-data">
                 <input type="hidden" name="venue_id">
                 <label class="field">
                     <span>Name</span>
@@ -95,6 +95,37 @@
                 <label class="field">
                     <span>Base price</span>
                     <input type="number" min="0" step="0.01" name="base_price" value="0">
+                </label>
+                <div class="form-section">
+                    <div class="form-section-head">
+                        <p class="eyebrow">Social links</p>
+                        <span>Add your public pages</span>
+                    </div>
+                    <div class="field-grid">
+                        <label class="field">
+                            <span>Instagram</span>
+                            <input type="url" name="instagram_url" placeholder="https://instagram.com/yourvenue">
+                        </label>
+                        <label class="field">
+                            <span>Facebook</span>
+                            <input type="url" name="facebook_url" placeholder="https://facebook.com/yourvenue">
+                        </label>
+                    </div>
+                    <div class="field-grid">
+                        <label class="field">
+                            <span>YouTube</span>
+                            <input type="url" name="youtube_url" placeholder="https://youtube.com/@yourvenue">
+                        </label>
+                        <label class="field">
+                            <span>Website</span>
+                            <input type="url" name="website_url" placeholder="https://yourvenue.com">
+                        </label>
+                    </div>
+                </div>
+                <label class="field">
+                    <span>Photos and videos</span>
+                    <input type="file" name="media_uploads" accept="image/*,video/*" multiple>
+                    <small class="field-note">Upload multiple venue photos or walkthrough videos in one save.</small>
                 </label>
                 <div class="queue-actions">
                     <button class="button button-primary" type="submit">Save venue</button>

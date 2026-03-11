@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -8,7 +9,7 @@ from .serializers import VenueSerializer, VenueBlockSerializer
 
 
 class VenueViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Venue.objects.filter(status='APPROVED')
+    queryset = Venue.objects.filter(status='APPROVED').prefetch_related('amenities', 'media')
     serializer_class = VenueSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['city', 'name', 'venue_type']
@@ -31,7 +32,7 @@ class OwnerVenueViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerRole]
 
     def get_queryset(self):
-        return Venue.objects.filter(owner=self.request.user)
+        return Venue.objects.filter(owner=self.request.user).prefetch_related('media')
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -45,3 +46,11 @@ class OwnerVenueViewSet(viewsets.ModelViewSet):
         v.status = 'PENDING'
         v.save()
         return Response({'status': 'submitted'})
+
+    @action(detail=True, methods=['delete'], url_path='media/(?P<media_id>[^/.]+)')
+    def delete_media(self, request, pk=None, media_id=None):
+        venue = self.get_object()
+        media = get_object_or_404(venue.media.all(), pk=media_id)
+        media.file.delete(save=False)
+        media.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -44,7 +44,7 @@
                 <span class="pill" data-vendor-form-mode>Create</span>
             </div>
 
-            <form class="stack-form" data-vendor-form>
+            <form class="stack-form" data-vendor-form enctype="multipart/form-data">
                 <input type="hidden" name="service_id">
                 <label class="field">
                     <span>Title</span>
@@ -76,6 +76,37 @@
                 <label class="field">
                     <span>Max guests supported</span>
                     <input type="number" min="1" name="max_guests_supported">
+                </label>
+                <div class="form-section">
+                    <div class="form-section-head">
+                        <p class="eyebrow">Social links</p>
+                        <span>Share your business pages</span>
+                    </div>
+                    <div class="field-grid">
+                        <label class="field">
+                            <span>Instagram</span>
+                            <input type="url" name="instagram_url" placeholder="https://instagram.com/yourbrand">
+                        </label>
+                        <label class="field">
+                            <span>Facebook</span>
+                            <input type="url" name="facebook_url" placeholder="https://facebook.com/yourbrand">
+                        </label>
+                    </div>
+                    <div class="field-grid">
+                        <label class="field">
+                            <span>YouTube</span>
+                            <input type="url" name="youtube_url" placeholder="https://youtube.com/@yourbrand">
+                        </label>
+                        <label class="field">
+                            <span>Website</span>
+                            <input type="url" name="website_url" placeholder="https://yourbrand.com">
+                        </label>
+                    </div>
+                </div>
+                <label class="field">
+                    <span>Photos and videos</span>
+                    <input type="file" name="media_uploads" accept="image/*,video/*" multiple>
+                    <small class="field-note">Upload service samples, portfolio shots, or promo reels.</small>
                 </label>
                 <div class="queue-actions">
                     <button class="button button-primary" type="submit">Save service</button>

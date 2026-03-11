@@ -1,3 +1,5 @@
+let ownerVenueCache = [];
+
 function ownerStatus(message, tone) {
     const node = document.querySelector("[data-owner-status]");
     node.textContent = message;
@@ -16,6 +18,22 @@ function ownerEscape(value) {
         .replaceAll("'", "&#39;");
 }
 
+function normalizeOptionalUrl(value) {
+    const trimmed = value.trim();
+    if (!trimmed) {
+        return "";
+    }
+    return /^[a-z]+:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}
+
+function appendFormValue(formData, key, value) {
+    if (value === null || value === undefined) {
+        formData.append(key, "");
+        return;
+    }
+    formData.append(key, String(value));
+}
+
 function ownerPayload(form) {
     return {
         name: form.name.value.trim(),
@@ -29,7 +47,21 @@ function ownerPayload(form) {
         capacity_min: Number(form.capacity_min.value || 1),
         capacity_max: Number(form.capacity_max.value || 100),
         base_price: form.base_price.value || "0.00",
+        instagram_url: normalizeOptionalUrl(form.instagram_url.value),
+        facebook_url: normalizeOptionalUrl(form.facebook_url.value),
+        youtube_url: normalizeOptionalUrl(form.youtube_url.value),
+        website_url: normalizeOptionalUrl(form.website_url.value),
     };
+}
+
+function ownerFormData(form) {
+    const payload = ownerPayload(form);
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => appendFormValue(formData, key, value));
+    Array.from(form.media_uploads.files).forEach((file) => {
+        formData.append("media_uploads", file);
+    });
+    return formData;
 }
 
 function resetOwnerForm() {
@@ -56,8 +88,64 @@ function fillOwnerForm(item) {
     form.capacity_min.value = item.capacity_min || 1;
     form.capacity_max.value = item.capacity_max || 100;
     form.base_price.value = item.base_price || 0;
+    form.instagram_url.value = item.instagram_url || "";
+    form.facebook_url.value = item.facebook_url || "";
+    form.youtube_url.value = item.youtube_url || "";
+    form.website_url.value = item.website_url || "";
     document.querySelector("[data-owner-form-mode]").textContent = `Edit #${item.id}`;
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function ownerSocialMarkup(item) {
+    const links = [
+        ["Instagram", item.instagram_url],
+        ["Facebook", item.facebook_url],
+        ["YouTube", item.youtube_url],
+        ["Website", item.website_url],
+    ].filter(([, url]) => url);
+
+    if (!links.length) {
+        return "";
+    }
+
+    return `
+        <div class="social-links">
+            ${links.map(([label, url]) => `
+                <a class="social-link" href="${ownerEscape(url)}" target="_blank" rel="noreferrer">
+                    ${ownerEscape(label)}
+                </a>
+            `).join("")}
+        </div>
+    `;
+}
+
+function ownerMediaMarkup(item) {
+    if (!item.media?.length) {
+        return "";
+    }
+
+    return `
+        <div class="media-grid">
+            ${item.media.map((media) => `
+                <figure class="media-card">
+                    ${media.is_video
+                        ? `<video src="${ownerEscape(media.file)}" controls preload="metadata"></video>`
+                        : `<img src="${ownerEscape(media.file)}" alt="${ownerEscape(item.name)} media" loading="lazy">`
+                    }
+                    <figcaption>
+                        <span>${media.is_video ? "Video" : "Photo"}</span>
+                        <button
+                            class="button button-danger button-compact"
+                            type="button"
+                            data-owner-media-delete="${item.id}:${media.id}"
+                        >
+                            Remove
+                        </button>
+                    </figcaption>
+                </figure>
+            `).join("")}
+        </div>
+    `;
 }
 
 function renderOwnerItems(items) {
@@ -82,11 +170,14 @@ function renderOwnerItems(items) {
                         <span>${ownerEscape(item.venue_type || "Venue")}</span>
                         <span>${ownerEscape(item.city)}</span>
                         <span>${ownerEscape(item.capacity_min)}-${ownerEscape(item.capacity_max)} guests</span>
+                        <span>${item.media?.length || 0} uploads</span>
                     </div>
                 </div>
                 <span class="pill">${ownerEscape(item.status)}</span>
             </header>
             <p class="queue-description">${ownerEscape(item.address)}</p>
+            ${ownerSocialMarkup(item)}
+            ${ownerMediaMarkup(item)}
             <div class="queue-actions">
                 <button class="button button-secondary" type="button" data-owner-edit="${item.id}">Edit</button>
                 <button class="button button-primary" type="button" data-owner-submit="${item.id}">Submit for review</button>
@@ -106,6 +197,7 @@ async function loadOwnerDashboard() {
                 headers: VianueSession.authHeaders(),
             }),
         ]);
+        ownerVenueCache = venues;
         document.querySelector("[data-owner-user]").textContent = me.username;
         renderOwnerItems(venues);
         ownerStatus("Venue list synced.", "success");
@@ -136,8 +228,8 @@ async function saveOwnerVenue(event) {
     try {
         await VianueSession.fetchJson(url, {
             method,
-            headers: VianueSession.authHeaders(),
-            body: JSON.stringify(ownerPayload(form)),
+            headers: VianueSession.authHeaders({ json: false }),
+            body: ownerFormData(form),
         });
         resetOwnerForm();
         await loadOwnerDashboard();
@@ -173,6 +265,19 @@ async function deleteOwnerVenue(id) {
     }
 }
 
+async function deleteOwnerMedia(venueId, mediaId) {
+    ownerStatus("Removing media.", null);
+    try {
+        await VianueSession.fetchJson(`/api/venues/owner/${venueId}/media/${mediaId}/`, {
+            method: "DELETE",
+            headers: VianueSession.authHeaders(),
+        });
+        await loadOwnerDashboard();
+    } catch (error) {
+        ownerStatus(error.message || "Unable to delete media.", "error");
+    }
+}
+
 document.querySelector("[data-owner-form]")?.addEventListener("submit", saveOwnerVenue);
 document.querySelector("[data-owner-reset]")?.addEventListener("click", resetOwnerForm);
 document.querySelector("[data-refresh-owner]")?.addEventListener("click", loadOwnerDashboard);
@@ -181,13 +286,10 @@ document.querySelector("[data-logout]")?.addEventListener("click", () => {
     window.location.href = "/login/";
 });
 
-document.addEventListener("click", async (event) => {
+document.addEventListener("click", (event) => {
     const editButton = event.target.closest("[data-owner-edit]");
     if (editButton) {
-        const venues = await VianueSession.fetchJson("/api/venues/owner/", {
-            headers: VianueSession.authHeaders(),
-        });
-        const item = venues.find((venue) => String(venue.id) === editButton.dataset.ownerEdit);
+        const item = ownerVenueCache.find((venue) => String(venue.id) === editButton.dataset.ownerEdit);
         if (item) {
             fillOwnerForm(item);
         }
@@ -203,6 +305,13 @@ document.addEventListener("click", async (event) => {
     const deleteButton = event.target.closest("[data-owner-delete]");
     if (deleteButton) {
         deleteOwnerVenue(deleteButton.dataset.ownerDelete);
+        return;
+    }
+
+    const mediaDeleteButton = event.target.closest("[data-owner-media-delete]");
+    if (mediaDeleteButton) {
+        const [venueId, mediaId] = mediaDeleteButton.dataset.ownerMediaDelete.split(":");
+        deleteOwnerMedia(venueId, mediaId);
     }
 });
 

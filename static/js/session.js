@@ -30,11 +30,15 @@ const VianueSession = (() => {
         return localStorage.getItem(ACCESS_TOKEN_KEY);
     }
 
-    function authHeaders() {
-        return {
+    function authHeaders(options = {}) {
+        const { json = true } = options;
+        const headers = {
             Authorization: `Bearer ${getAccessToken()}`,
-            "Content-Type": "application/json",
         };
+        if (json) {
+            headers["Content-Type"] = "application/json";
+        }
+        return headers;
     }
 
     async function fetchJson(url, options = {}) {

@@ -38,11 +38,21 @@ class ServiceListing(models.Model):
     base_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     min_order_value = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     max_guests_supported = models.PositiveIntegerField(null=True, blank=True)
+    instagram_url = models.URLField(blank=True, default='')
+    facebook_url = models.URLField(blank=True, default='')
+    youtube_url = models.URLField(blank=True, default='')
+    website_url = models.URLField(blank=True, default='')
     travel_fee_rule = models.JSONField(default=dict, blank=True)
     cancellation_policy = models.JSONField(default=dict, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='DRAFT')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class ServiceMedia(models.Model):
+    service = models.ForeignKey(ServiceListing, on_delete=models.CASCADE, related_name='media')
+    file = models.FileField(upload_to='service_media')
+    is_video = models.BooleanField(default=False)
 
 
 class ServicePackage(models.Model):

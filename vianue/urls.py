@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.contrib import admin
+from django.conf.urls.static import static
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .web_views import (
@@ -32,3 +34,6 @@ urlpatterns = [
     path('api/availability/', include('availability.urls')),
     path('api/adminpanel/', include('adminpanel.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
