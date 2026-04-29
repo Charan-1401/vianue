@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
 {% block content %}
 <section class="dashboard-shell">
     <div class="dashboard-intro reveal">
@@ -27,8 +34,8 @@
             <strong data-vendor-service-count>0</strong>
         </article>
         <article class="summary-card">
-            <span>Incoming requests</span>
-            <strong data-vendor-request-count>0</strong>
+            <span>Pending bookings</span>
+            <strong data-vendor-booking-count>0</strong>
         </article>
     </section>
 
@@ -130,12 +137,13 @@
     <article class="review-panel reveal reveal-delay">
         <div class="review-head">
             <div>
-                <p class="eyebrow">Requests</p>
-                <h2>Incoming booking requests</h2>
+                <p class="eyebrow">Service bookings</p>
+                <h2>Your incoming bookings</h2>
             </div>
-            <span class="pill" data-vendor-request-pill>0 requests</span>
+            <span class="pill" data-vendor-booking-pill>0 bookings</span>
         </div>
-        <div class="review-list" data-vendor-requests></div>
+        <div class="review-list" data-vendor-bookings></div>
+        <p class="empty-state" data-no-vendor-bookings style="display:none;">No bookings yet.</p>
     </article>
 </section>
 {% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-intro reveal">
+        <div>
+            <p class="eyebrow">Book a venue or service</p>
+            <h1 data-booking-title>Create booking</h1>
+            <p class="hero-text">
+                Select your event details and confirm the booking. The provider will be notified automatically.
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <a class="button button-ghost" href="{% url 'explore-page' %}">Back to explore</a>
+        </div>
+    </div>
+
+    <p class="dashboard-status" data-booking-status aria-live="polite"></p>
+
+    <section class="booking-form-section reveal reveal-delay">
+        <form class="form-card" data-booking-form>
+            <input type="hidden" name="item_type" id="booking-item-type">
+            <input type="hidden" name="venue_id" id="booking-venue-id">
+            <input type="hidden" name="service_id" id="booking-service-id">
+
+            <div class="form-head">
+                <p class="eyebrow">Event details</p>
+                <h2>Tell us about your event</h2>
+            </div>
+
+            <label class="field">
+                <span>Event type</span>
+                <input type="text" name="event_type" placeholder="Wedding, Birthday, Corporate, etc." required>
+            </label>
+
+            <div class="field-grid">
+                <label class="field">
+                    <span>Start date & time</span>
+                    <input type="datetime-local" name="start_at" required>
+                </label>
+                <label class="field">
+                    <span>End date & time</span>
+                    <input type="datetime-local" name="end_at" required>
+                </label>
+            </div>
+
+            <label class="field">
+                <span>Number of guests</span>
+                <input type="number" name="guest_count" min="1" value="50" required>
+            </label>
+
+            <div class="field-grid">
+                <label class="field">
+                    <span>Event city</span>
+                    <input type="text" name="event_city" required>
+                </label>
+                <label class="field">
+                    <span>Event address</span>
+                    <input type="text" name="event_address" required>
+                </label>
+            </div>
+
+            <div class="form-head" style="margin-top: 2rem;">
+                <p class="eyebrow">Quote</p>
+                <h2>Price breakdown</h2>
+            </div>
+
+            <div class="quote-display" data-quote-display style="display:none;">
+                <div class="quote-items" data-quote-items></div>
+                <div class="quote-total">
+                    <span>Total</span>
+                    <strong data-quote-total>0</strong>
+                </div>
+            </div>
+            <p class="quote-loading" data-quote-loading>Calculating quote...</p>
+
+            <button class="button button-primary" type="submit" data-submit-btn>Confirm booking</button>
+        </form>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/booking.js' %}"></script>
+{% endblock %}

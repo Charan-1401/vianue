@@ -46,7 +46,7 @@ def resolve_dashboard_path(user):
         return reverse("owner-dashboard-page")
     if user.role == "VENDOR":
         return reverse("vendor-dashboard-page")
-    return reverse("home")
+    return reverse("customer-dashboard-page")
 
 
 def normalize_keyword(value):
@@ -208,8 +208,8 @@ class ExplorePageView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         request = self.request
-        city = (request.GET.get("city") or "Bengaluru").strip()
-        area = (request.GET.get("area") or "Indiranagar").strip()
+        city = (request.GET.get("city") or "New York").strip()
+        area = (request.GET.get("area") or "").strip()
         search = (request.GET.get("q") or "").strip()
         category = (request.GET.get("category") or "").strip()
         sort = (request.GET.get("sort") or "recommended").strip()
@@ -371,9 +371,9 @@ class ExplorePageView(TemplateView):
                     else "Browse approved listings, then tighten the search with location, type, or availability."
                 ),
                 "location_presets": [
-                    {"city": "Bengaluru", "area": "Indiranagar"},
-                    {"city": "Hyderabad", "area": "Banjara Hills"},
-                    {"city": "Chennai", "area": "Nungambakkam"},
+                    {"city": "New York", "area": ""},
+                    {"city": "Los Angeles", "area": ""},
+                    {"city": "New York", "area": "Manhattan"},
                 ],
                 "explore_base_url": reverse("explore-page"),
             }
@@ -410,15 +410,15 @@ class ExplorePageView(TemplateView):
         return {
             "kind": "venue",
             "title": venue.name,
-            "type_label": venue.venue_type or "Venue",
+            "type_label": ", ".join(location_bits) or venue.address,
             "icon": listing_icon("venue", venue.venue_type or "Venue"),
             "description": venue.description or venue.address,
             "meta": meta,
             "tags": tags,
             "price_display": format_price(venue.base_price),
             "price_unit": "/day",
-            "cta_label": "Check availability",
-            "href": f"/api/venues/{venue.id}/",
+            "cta_label": "Book now",
+            "href": f"/book/?venue_id={venue.id}",
             "price_value": float(venue.base_price or 0),
             "created_order": int(venue.created_at.timestamp()),
             "score": 2 + int(bool(venue.description)) + len(amenities) + int(bool(venue.media.all())),
@@ -464,8 +464,8 @@ class ExplorePageView(TemplateView):
             "tags": tags[:3],
             "price_display": format_price(listing.base_price),
             "price_unit": price_unit_for_service(listing),
-            "cta_label": "Book service",
-            "href": f"/api/services/{listing.id}/",
+            "cta_label": "Book now",
+            "href": f"/book/?service_id={listing.id}",
             "price_value": float(listing.base_price or 0),
             "created_order": int(listing.created_at.timestamp()),
             "score": 2 + int(bool(listing.description)) + len(packages) + len(addons),
@@ -521,4 +521,20 @@ class AdminDashboardPageView(ProtectedDashboardView):
     extra_context = {
         "page_title": "Admin Dashboard",
         "page_key": "admin-dashboard",
+    }
+
+
+class CustomerDashboardPageView(ProtectedDashboardView):
+    template_name = "pages/customer_dashboard.html"
+    extra_context = {
+        "page_title": "My Bookings",
+        "page_key": "customer-dashboard",
+    }
+
+
+class BookingPageView(ProtectedDashboardView):
+    template_name = "pages/booking.html"
+    extra_context = {
+        "page_title": "Book Venue or Service",
+        "page_key": "booking",
     }

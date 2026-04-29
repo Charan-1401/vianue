@@ -317,3 +317,110 @@ document.addEventListener("click", (event) => {
 
 resetOwnerForm();
 loadOwnerDashboard();
+loadOwnerBookings();
+
+async function loadOwnerBookings() {
+    const container = document.querySelector("[data-owner-bookings]");
+    const countNode = document.querySelector("[data-owner-booking-count]");
+    const pillNode = document.querySelector("[data-owner-booking-pill]");
+    const emptyNode = document.querySelector("[data-no-owner-bookings]");
+
+    try {
+        const data = await VianueSession.fetchJson("/api/orders/venue-bookings/", {
+            headers: VianueSession.authHeaders(),
+        });
+
+        const bookings = data.results || data;
+        if (countNode) countNode.textContent = bookings.length;
+        if (pillNode) pillNode.textContent = `${bookings.length} booking${bookings.length === 1 ? "" : "s"}`;
+
+        if (bookings.length === 0) {
+            if (emptyNode) emptyNode.style.display = "block";
+            if (container) container.innerHTML = "";
+            return;
+        }
+
+        if (container) {
+            container.innerHTML = bookings.map(renderBooking).join("");
+        }
+    } catch (error) {
+        console.error("Failed to load bookings:", error);
+    }
+}
+
+function renderBooking(booking) {
+    const statusColors = {
+        PENDING_ACCEPTANCE: "pill-yellow",
+        ACCEPTED: "pill-green",
+        REJECTED: "pill-red",
+        SCHEDULED: "pill-blue",
+        DELIVERED: "pill-purple",
+    };
+    const statusColor = statusColors[booking.fulfillment_status] || "pill-gray";
+
+    return `<div class="queue-item" data-booking-id="${booking.id}">
+        <header>
+            <div>
+                <h3>Order #${booking.order}</h3>
+                <div class="queue-meta">
+                    <span>${booking.item_type}</span>
+                    <span>${new Date(booking.start_at).toLocaleDateString()}</span>
+                    <span>${booking.quantity} unit(s)</span>
+                </div>
+            </div>
+            <span class="pill ${statusColor}">${booking.fulfillment_status}</span>
+        </header>
+        <div class="queue-actions">
+            ${booking.fulfillment_status === "PENDING_ACCEPTANCE" ? `
+                <button class="button button-primary" data-accept-booking="${booking.id}">Accept</button>
+                <button class="button button-danger" data-reject-booking="${booking.id}">Reject</button>
+            ` : ""}
+            ${booking.fulfillment_status === "ACCEPTED" ? `
+                <button class="button button-secondary" data-schedule-booking="${booking.id}">Mark Scheduled</button>
+            ` : ""}
+            ${booking.fulfillment_status === "SCHEDULED" ? `
+                <button class="button button-primary" data-deliver-booking="${booking.id}">Mark Delivered</button>
+            ` : ""}
+        </div>
+    </div>`;
+}
+
+document.addEventListener("click", async (event) => {
+    const acceptBtn = event.target.closest("[data-accept-booking]");
+    if (acceptBtn) {
+        await updateBookingStatus(acceptBtn.dataset.acceptBooking, "accept");
+        return;
+    }
+
+    const rejectBtn = event.target.closest("[data-reject-booking]");
+    if (rejectBtn) {
+        await updateBookingStatus(rejectBtn.dataset.rejectBooking, "reject");
+        return;
+    }
+
+    const scheduleBtn = event.target.closest("[data-schedule-booking]");
+    if (scheduleBtn) {
+        await updateBookingStatus(scheduleBtn.dataset.scheduleBooking, "schedule");
+        return;
+    }
+
+    const deliverBtn = event.target.closest("[data-deliver-booking]");
+    if (deliverBtn) {
+        await updateBookingStatus(deliverBtn.dataset.deliverBooking, "deliver");
+        return;
+    }
+});
+
+async function updateBookingStatus(itemId, action) {
+    try {
+        await VianueSession.fetchJson(`/api/orders/booking-management/${itemId}/`, {
+            method: "POST",
+            headers: VianueSession.authHeaders(),
+            body: JSON.stringify({ action }),
+        });
+        ownerStatus("Booking updated successfully.", "success");
+        await loadOwnerBookings();
+    } catch (error) {
+        ownerStatus(error.message || "Failed to update booking.", "error");
+    }
+}

@@ -5,6 +5,8 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from .web_views import (
     AdminDashboardPageView,
+    BookingPageView,
+    CustomerDashboardPageView,
     DashboardRedirectView,
     ExplorePageView,
     HomePageView,
@@ -23,6 +25,8 @@ urlpatterns = [
     path('dashboard/owner/', OwnerDashboardPageView.as_view(), name='owner-dashboard-page'),
     path('dashboard/vendor/', VendorDashboardPageView.as_view(), name='vendor-dashboard-page'),
     path('dashboard/admin/', AdminDashboardPageView.as_view(), name='admin-dashboard-page'),
+    path('dashboard/customer/', CustomerDashboardPageView.as_view(), name='customer-dashboard-page'),
+    path('book/', BookingPageView.as_view(), name='booking-page'),
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),

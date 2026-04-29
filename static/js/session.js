@@ -70,7 +70,7 @@ const VianueSession = (() => {
         if (user.role === "VENDOR") {
             return "/dashboard/vendor/";
         }
-        return "/";
+        return "/dashboard/customer/";
     }
 
     return {

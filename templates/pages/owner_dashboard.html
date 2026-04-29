@@ -1,6 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
 {% block content %}
 <section class="dashboard-shell">
     <div class="dashboard-intro reveal">
@@ -27,8 +34,8 @@
             <strong data-owner-venue-count>0</strong>
         </article>
         <article class="summary-card">
-            <span>Pending approval</span>
-            <strong data-owner-pending-count>0</strong>
+            <span>Pending bookings</span>
+            <strong data-owner-booking-count>0</strong>
         </article>
     </section>
 
@@ -144,6 +151,20 @@
             </div>
             <div class="review-list" data-owner-venues></div>
         </article>
+    </section>
+
+    <section class="dashboard-shell" style="margin-top: 2rem;">
+        <div class="review-panel reveal">
+            <div class="review-head">
+                <div>
+                    <p class="eyebrow">Incoming bookings</p>
+                    <h2>Venue bookings</h2>
+                </div>
+                <span class="pill" data-owner-booking-pill>0 bookings</span>
+            </div>
+            <div class="review-list" data-owner-bookings></div>
+            <p class="empty-state" data-no-owner-bookings style="display:none;">No bookings yet.</p>
+        </div>
     </section>
 </section>
 {% endblock %}

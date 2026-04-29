@@ -80,8 +80,8 @@ class OrderViewSet(viewsets.ModelViewSet):
         if item_type == 'VENUE':
             venue = get_object_or_404(Venue, pk=data.get('venue'))
             oi = OrderItem.objects.create(order=order, item_type='VENUE', venue=venue,
-                                          start_at=start_at, end_at=end_at, quantity=quantity, unit_price=0,
-                                          pricing_snapshot={})
+                                           start_at=start_at, end_at=end_at, quantity=quantity, unit_price=0,
+                                           pricing_snapshot={}, provider_owner=venue.owner)
         else:
             listing = get_object_or_404(ServiceListing, pk=data.get('service'))
             package = None
@@ -90,8 +90,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             # compute price
             pricing = compute_service_price(listing, package, [], listing.pricing_model, order.start_at, order.end_at, order.guest_count, quantity)
             oi = OrderItem.objects.create(order=order, item_type='SERVICE', service=listing, service_package=package,
-                                          start_at=order.start_at, end_at=order.end_at, quantity=quantity,
-                                          unit_price=pricing['total'], pricing_snapshot=pricing)
+                                           start_at=order.start_at, end_at=order.end_at, quantity=quantity,
+                                           unit_price=pricing['total'], pricing_snapshot=pricing,
+                                           provider_owner=listing.vendor.user)
 
         return Response(OrderSerializer(order).data)
 
@@ -129,3 +130,76 @@ class MyOrdersView(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Order.objects.filter(customer=self.request.user)
+
+
+class VenueOwnerBookingsView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OrderItemSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return OrderItem.objects.filter(
+            item_type='VENUE',
+            venue__owner=self.request.user,
+            fulfillment_status__in=['PENDING_ACCEPTANCE', 'ACCEPTED', 'SCHEDULED', 'DELIVERED']
+        )
+
+
+class VendorBookingsView(viewsets.ReadOnlyModelViewSet):
+    serializer_class = OrderItemSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return OrderItem.objects.filter(
+            item_type='SERVICE',
+            service__vendor__user=self.request.user,
+            fulfillment_status__in=['PENDING_ACCEPTANCE', 'ACCEPTED', 'SCHEDULED', 'DELIVERED']
+        )
+
+
+class ProviderBookingsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        venue_items = OrderItem.objects.filter(
+            item_type='VENUE',
+            venue__owner=user
+        )
+        service_items = OrderItem.objects.filter(
+            item_type='SERVICE',
+            service__vendor__user=user
+        )
+        return Response({
+            'venue_bookings': OrderItemSerializer(venue_items, many=True).data,
+            'service_bookings': OrderItemSerializer(service_items, many=True).data
+        })
+
+
+class BookingManagementView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, item_id):
+        item = get_object_or_404(OrderItem, pk=item_id)
+        user = request.user
+
+        # Verify the user is the provider/owner for this item
+        if item.provider_owner != user:
+            return Response({'error': 'Not authorized'}, status=status.HTTP_403_FORBIDDEN)
+
+        action = request.data.get('action')
+        if action == 'accept':
+            item.fulfillment_status = 'ACCEPTED'
+            item.save()
+        elif action == 'reject':
+            item.fulfillment_status = 'REJECTED'
+            item.save()
+        elif action == 'schedule':
+            item.fulfillment_status = 'SCHEDULED'
+            item.save()
+        elif action == 'deliver':
+            item.fulfillment_status = 'DELIVERED'
+            item.save()
+        else:
+            return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(OrderItemSerializer(item).data)

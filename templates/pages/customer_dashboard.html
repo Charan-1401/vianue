@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<section class="dashboard-shell">
+    <div class="dashboard-intro reveal">
+        <div>
+            <p class="eyebrow">Customer workspace</p>
+            <h1>My Bookings</h1>
+            <p class="hero-text">
+                View and manage your venue and service bookings. Track status and get updates from providers.
+            </p>
+        </div>
+        <div class="dashboard-actions">
+            <a class="button button-secondary" href="{% url 'explore-page' %}">Browse more</a>
+            <button class="button button-ghost" type="button" data-logout>Log out</button>
+        </div>
+    </div>
+
+    <section class="summary-grid reveal reveal-delay">
+        <article class="summary-card">
+            <span>Total bookings</span>
+            <strong data-booking-count>0</strong>
+        </article>
+        <article class="summary-card">
+            <span>Pending</span>
+            <strong data-pending-count>0</strong>
+        </article>
+        <article class="summary-card">
+            <span>Confirmed</span>
+            <strong data-confirmed-count>0</strong>
+        </article>
+    </section>
+
+    <p class="dashboard-status" data-booking-status aria-live="polite"></p>
+
+    <section class="booking-sections">
+        <article class="booking-panel reveal">
+            <div class="booking-head">
+                <div>
+                    <p class="eyebrow">Your orders</p>
+                    <h2>Booking history</h2>
+                </div>
+            </div>
+            <div class="booking-list" data-my-orders></div>
+            <p class="empty-state" data-no-orders style="display:none;">No bookings yet. <a href="{% url 'explore-page' %}">Start exploring</a>.</p>
+        </article>
+    </section>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/customer-dashboard.js' %}"></script>
+{% endblock %}
