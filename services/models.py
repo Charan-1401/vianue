@@ -6,8 +6,21 @@ class VendorProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vendor_profile')
     business_name = models.CharField(max_length=255)
     phone = models.CharField(max_length=50, blank=True)
+    bio = models.TextField(blank=True)
+    portfolio_url = models.URLField(blank=True, default='')
+    instagram_url = models.URLField(blank=True, default='')
+    facebook_url = models.URLField(blank=True, default='')
     is_verified = models.BooleanField(default=False)
     cities = models.JSONField(default=list, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['is_verified', '-created_at'], name='vendor_verified_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.business_name} ({self.user.username})"
 
 
 class ServiceCategory(models.Model):
@@ -48,11 +61,30 @@ class ServiceListing(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', '-created_at'], name='svc_status_created_idx'),
+        ]
+
+    def __str__(self):
+        return self.title
+
 
 class ServiceMedia(models.Model):
     service = models.ForeignKey(ServiceListing, on_delete=models.CASCADE, related_name='media')
-    file = models.FileField(upload_to='service_media')
+    file = models.FileField(upload_to='service_media/%Y/%m/%d')
     is_video = models.BooleanField(default=False)
+    description = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['service', '-created_at'], name='svcmedia_created_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.service.title} - {self.file.name}"
 
 
 class ServicePackage(models.Model):

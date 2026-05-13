@@ -1,6 +1,30 @@
 # Vianue — Venue Marketplace (Django + DRF)
 
-This repository contains a scaffolded Django + DRF project for a Venue Marketplace.
+Vianue is a full-stack venue marketplace built with Django and Django REST Framework. It supports multi-role workflows including customers, venue owners, service vendors, and admin moderators. The platform includes venue discovery, service listings, booking/order management, availability blocking, and approval workflows.
+
+## Features
+
+- Role-based access for `CUSTOMER`, `OWNER`, `VENDOR`, and `STAFF`
+- Venue search and availability checking
+- Service listings with categories, pricing models, packages, and add-ons
+- Booking/order lifecycle with order items, payments, refunds, and status tracking
+- Admin moderation for venue/service approvals
+- JWT authentication and protected dashboards
+- Celery + Redis for background task support
+- Docker Compose setup for Postgres and Redis
+
+## Tech stack
+
+- Python 3.11
+- Django 4.x
+- Django REST Framework
+- JWT auth via `djangorestframework-simplejwt`
+- Celery with Redis
+- PostgreSQL
+- Stripe integration
+- Docker + Docker Compose
+- `drf-spectacular` for API schema
+- `django-storages` and `python-dotenv`
 
 Quick start (dev):
 

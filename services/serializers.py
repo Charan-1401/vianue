@@ -11,9 +11,32 @@ from vianue.media_utils import uploaded_file_is_video
 
 
 class VendorProfileSerializer(serializers.ModelSerializer):
+    user_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    listings_count = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = VendorProfile
-        fields = '__all__'
+        fields = (
+            'id',
+            'user',
+            'user_name',
+            'user_username',
+            'business_name',
+            'phone',
+            'bio',
+            'portfolio_url',
+            'instagram_url',
+            'facebook_url',
+            'is_verified',
+            'cities',
+            'listings_count',
+            'created_at',
+        )
+        read_only_fields = ('user', 'is_verified', 'created_at')
+
+    def get_listings_count(self, obj):
+        return obj.listings.filter(status='APPROVED').count()
 
 
 class ServiceCategorySerializer(serializers.ModelSerializer):
@@ -37,10 +60,11 @@ class ServiceAddOnSerializer(serializers.ModelSerializer):
 class ServiceMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ServiceMedia
-        fields = ('id', 'file', 'is_video')
+        fields = ('id', 'file', 'is_video', 'description', 'created_at')
 
 
 class ServiceListingSerializer(serializers.ModelSerializer):
+    vendor = VendorProfileSerializer(read_only=True)
     packages = ServicePackageSerializer(many=True, read_only=True)
     addons = ServiceAddOnSerializer(many=True, read_only=True)
     media = ServiceMediaSerializer(many=True, read_only=True)

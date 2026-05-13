@@ -1,7 +1,8 @@
 from decimal import Decimal
 
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,7 +16,9 @@ from .serializers import (
     ServiceAddOnSerializer,
     ServiceListingSerializer,
     ServicePackageSerializer,
+    VendorProfileSerializer,
 )
+from vianue.web_utils import is_available_today
 
 
 def get_vendor_profile_for_user(user):
@@ -29,8 +32,51 @@ def get_vendor_profile_for_user(user):
 
 
 class ServiceListingViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = ServiceListing.objects.filter(status='APPROVED').prefetch_related('packages', 'addons', 'media')
+    queryset = (
+        ServiceListing.objects.filter(status='APPROVED')
+        .select_related('vendor__user', 'category')
+        .prefetch_related('vendor__blocks', 'packages', 'addons', 'media')
+    )
     serializer_class = ServiceListingSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = [
+        'title', 'description', 'category__name',
+        'vendor__business_name',
+    ]
+    ordering_fields = ['base_price', 'created_at']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        city = self.request.query_params.get('city', '').strip()
+        area = self.request.query_params.get('area', '').strip()
+        available = self.request.query_params.get('available_today', '').strip()
+
+        if city or area:
+            search_terms = [t.lower() for t in (city, area) if t]
+            qs = qs.filter(
+                Q(vendor__cities__icontains=search_terms[0])
+            ) if search_terms else qs
+
+        if available == 'true':
+            ids = [
+                s.id for s in qs
+                if is_available_today(s.vendor.blocks.all())
+            ]
+            qs = qs.filter(id__in=ids)
+
+        return qs
+
+    @action(detail=True, methods=['get'])
+    def profile(self, request, pk=None):
+        listing = self.get_object()
+        serializer = self.get_serializer(listing)
+        return Response(serializer.data)
+
+
+class VendorProfileViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = VendorProfile.objects.select_related('user').all()
+    serializer_class = VendorProfileSerializer
 
 
 class VendorListingViewSet(viewsets.ModelViewSet):
@@ -38,7 +84,7 @@ class VendorListingViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsVendorRole]
 
     def get_queryset(self):
-        return ServiceListing.objects.filter(vendor__user=self.request.user).prefetch_related('media')
+        return ServiceListing.objects.filter(vendor__user=self.request.user).select_related('vendor__user').prefetch_related('media')
 
     def perform_create(self, serializer):
         serializer.save(vendor=get_vendor_profile_for_user(self.request.user))

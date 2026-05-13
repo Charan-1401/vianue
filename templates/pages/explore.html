@@ -127,7 +127,38 @@
                     {% for card in results %}
                         <article class="result-card">
                             <div class="card-media">
-                                <i class="fa-solid {{ card.icon }}" aria-hidden="true"></i>
+                                {% if card.media %}
+                                    <div class="card-media-carousel" data-media-carousel>
+                                        {% for media_item in card.media %}
+                                            <{% if media_item.is_video %}video{% else %}img{% endif %} 
+                                                class="media-item" 
+                                                data-media-item 
+                                                {% if media_item.is_video %}
+                                                    src="{{ media_item.file }}" 
+                                                    muted 
+                                                    loop
+                                                {% else %}
+                                                    src="{{ media_item.file }}" 
+                                                    alt="{{ card.title }}"
+                                                {% endif %}
+                                                style="display: none;"
+                                            >
+                                        {% endfor %}
+                                    </div>
+                                    <span class="card-media-indicator" data-media-count>
+                                        1 / {{ card.media|length }}
+                                    </span>
+                                    {% if card.media|length > 1 %}
+                                        <button class="card-media-nav prev" data-media-prev aria-label="Previous media">
+                                            <i class="fa-solid fa-chevron-left"></i>
+                                        </button>
+                                        <button class="card-media-nav next" data-media-next aria-label="Next media">
+                                            <i class="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                    {% endif %}
+                                {% else %}
+                                    <i class="fa-solid {{ card.icon }}" aria-hidden="true"></i>
+                                {% endif %}
                             </div>
                             <div class="card-info">
                                 <h3>{{ card.title }}</h3>
@@ -143,6 +174,15 @@
                                 </div>
 
                                 <p class="card-copy">{{ card.description }}</p>
+
+                                {% if card.owner_info %}
+                                    <div class="card-owner">
+                                        <span class="owner-label">
+                                            <i class="fa-solid fa-user" aria-hidden="true"></i>
+                                            {{ card.owner_info.name }}
+                                        </span>
+                                    </div>
+                                {% endif %}
 
                                 <div class="tags">
                                     {% for tag in card.tags %}

@@ -91,3 +91,16 @@ class VendorFlowTests(APITestCase):
         self.assertEqual(listing.instagram_url, 'https://instagram.com/cinematicteam')
         self.assertEqual(listing.media.count(), 2)
         self.assertTrue(ServiceMedia.objects.filter(service=listing, is_video=True).exists())
+
+    def test_service_profile_endpoint_includes_vendor_details(self):
+        response = self.client.get(f'/api/services/{self.listing.id}/profile/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['id'], self.listing.id)
+        self.assertIn('vendor', response.data)
+        self.assertEqual(response.data['vendor']['business_name'], self.vendor_profile.business_name)
+
+    def test_vendor_profile_read_only_endpoint(self):
+        response = self.client.get(f'/api/services/vendor-profiles/{self.vendor_profile.id}/')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['business_name'], self.vendor_profile.business_name)
+        self.assertEqual(response.data['user'], self.vendor_user.id)

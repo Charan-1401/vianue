@@ -25,6 +25,86 @@
 
     <p class="dashboard-status" data-booking-status aria-live="polite"></p>
 
+    <section class="item-profile-section reveal reveal-delay" data-item-profile style="display: none;">
+        <div class="item-profile-card">
+            <div class="profile-media">
+                <div class="profile-gallery" data-profile-gallery>
+                    <div class="gallery-placeholder">
+                        <i class="fa-solid fa-image"></i>
+                    </div>
+                </div>
+                <div class="gallery-nav">
+                    <button class="gallery-btn prev" data-gallery-prev aria-label="Previous">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="gallery-btn next" data-gallery-next aria-label="Next">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <span class="gallery-indicator" data-gallery-count></span>
+            </div>
+            <div class="profile-info">
+                <div class="profile-header">
+                    <div>
+                        <h2 data-profile-title></h2>
+                        <span class="profile-type-badge" data-profile-type></span>
+                    </div>
+                </div>
+                
+                <div class="profile-owner" data-owner-section style="display: none;">
+                    <div class="owner-info">
+                        <i class="fa-solid fa-user"></i>
+                        <div>
+                            <span class="owner-label">Listed by</span>
+                            <strong data-owner-name></strong>
+                        </div>
+                    </div>
+                    <div class="owner-contact" data-owner-contact style="display: none;">
+                        <span class="phone-badge">
+                            <i class="fa-solid fa-phone"></i>
+                            <span data-owner-phone></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="vendor-profile" data-vendor-section style="display: none;">
+                    <div class="vendor-header">
+                        <div>
+                            <strong data-vendor-name></strong>
+                            <span class="verified-badge" data-verified-badge style="display: none;">
+                                <i class="fa-solid fa-check"></i> Verified
+                            </span>
+                        </div>
+                    </div>
+                    <p class="vendor-bio" data-vendor-bio></p>
+                    <div class="vendor-meta">
+                        <span data-vendor-listings>
+                            <i class="fa-solid fa-list"></i>
+                            <span data-listings-count></span> active listings
+                        </span>
+                    </div>
+                </div>
+
+                <p class="profile-description" data-profile-description></p>
+                
+                <div class="profile-social" data-social-links style="display: none;">
+                    <a href="#" class="social-link" data-instagram aria-label="Instagram" style="display: none;">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-link" data-facebook aria-label="Facebook" style="display: none;">
+                        <i class="fa-brands fa-facebook"></i>
+                    </a>
+                    <a href="#" class="social-link" data-youtube aria-label="YouTube" style="display: none;">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-link" data-website aria-label="Website" style="display: none;">
+                        <i class="fa-solid fa-globe"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="booking-form-section reveal reveal-delay">
         <form class="form-card" data-booking-form>
             <input type="hidden" name="item_type" id="booking-item-type">

@@ -43,14 +43,30 @@ class Venue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status', '-created_at'], name='venue_status_created_idx'),
+        ]
+
     def __str__(self):
         return self.name
 
 
 class VenueMedia(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='media')
-    file = models.FileField(upload_to='venue_media')
+    file = models.FileField(upload_to='venue_media/%Y/%m/%d')
     is_video = models.BooleanField(default=False)
+    description = models.CharField(max_length=255, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['venue', '-created_at'], name='venuemedia_created_idx'),
+        ]
+
+    def __str__(self):
+        return f"{self.venue.name} - {self.file.name}"
 
 
 class VenueBlock(models.Model):

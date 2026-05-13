@@ -12,10 +12,13 @@ class AmenitySerializer(serializers.ModelSerializer):
 class VenueMediaSerializer(serializers.ModelSerializer):
     class Meta:
         model = VenueMedia
-        fields = ('id', 'file', 'is_video')
+        fields = ('id', 'file', 'is_video', 'description', 'created_at')
 
 
 class VenueSerializer(serializers.ModelSerializer):
+    owner_name = serializers.CharField(source='owner.get_full_name', read_only=True)
+    owner_username = serializers.CharField(source='owner.username', read_only=True)
+    owner_phone = serializers.CharField(source='owner.phone', read_only=True)
     media = VenueMediaSerializer(many=True, read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
     media_uploads = serializers.ListField(
@@ -29,6 +32,9 @@ class VenueSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'owner',
+            'owner_name',
+            'owner_username',
+            'owner_phone',
             'name',
             'venue_type',
             'description',

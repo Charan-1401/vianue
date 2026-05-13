@@ -10,10 +10,10 @@
 </head>
 <body class="page-shell page-{{ page_key|default:'default' }}">
     {% block site_header %}
-        {% if page_key == 'home' %}
+        {% if page_key == 'home' or page_key == 'login' or page_key == 'register' or page_key == 'customer-dashboard' or page_key == 'owner-dashboard' or page_key == 'vendor-dashboard' or page_key == 'admin-dashboard' %}
             <header class="site-header site-header-home">
                 <div class="landing-container site-header-home-inner">
-                    <a class="brand" href="{% url 'home' %}">
+                    <a class="brand brand-home" href="{% url 'home' %}">
                         <span class="brand-mark">V</span>
                         <span class="brand-copy">
                             <strong>Vianue</strong>
@@ -27,8 +27,14 @@
                         <a href="#contact">Contact</a>
                     </nav>
                     <div class="site-actions-home">
-                        <a class="landing-button landing-button-secondary" href="{% url 'login-page' %}">Sign in</a>
-                        <a class="landing-button landing-button-primary" href="{% url 'register-page' %}">List your space</a>
+                        {% if page_key == 'login' %}
+                            <a class="landing-button landing-button-secondary" href="{% url 'register-page' %}">Create account</a>
+                        {% elif page_key == 'register' %}
+                            <a class="landing-button landing-button-secondary" href="{% url 'login-page' %}">Sign in</a>
+                        {% else %}
+                            <a class="landing-button landing-button-secondary" href="{% url 'login-page' %}">Sign in</a>
+                            <a class="landing-button landing-button-primary" href="{% url 'register-page' %}">List your space</a>
+                        {% endif %}
                     </div>
                 </div>
             </header>
@@ -57,6 +63,7 @@
         {% block content %}{% endblock %}
     </main>
     <script src="{% static 'js/session.js' %}"></script>
+    <script src="{% static 'js/media-carousel.js' %}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
